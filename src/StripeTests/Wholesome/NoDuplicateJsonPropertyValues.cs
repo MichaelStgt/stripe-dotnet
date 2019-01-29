@@ -10,13 +10,13 @@ namespace StripeTests
     using Xunit;
 
     /// <summary>
-    /// This wholesome test ensures that lists (as in `List<>`) are used instead of arrays (`[]`)
-    /// in Stripe entities and options classes.
+    /// This wholesome test ensures that no entity or options class reuses the same name in
+    /// different `JsonProperty` attributes.
     /// </summary>
-    public class UseListsInsteadOfArrays : WholesomeTest
+    public class NoDuplicateJsonPropertyValues : WholesomeTest
     {
         private const string AssertionMessage =
-            "Found at least one array type. Please use List<> instead.";
+            "Found at least one duplicate JsonProperty name.";
 
         [Fact]
         public void Check()
@@ -29,6 +29,8 @@ namespace StripeTests
 
             foreach (Type stripeClass in stripeClasses)
             {
+                var jsonPropertyNames = new List<string>();
+
                 foreach (PropertyInfo property in stripeClass.GetProperties())
                 {
                     var propType = property.PropertyType;
@@ -40,13 +42,14 @@ namespace StripeTests
                         continue;
                     }
 
-                    // Skip non-array types
-                    if (!propType.GetTypeInfo().IsArray)
+                    if (jsonPropertyNames.Contains(attribute.PropertyName))
                     {
-                        continue;
+                        results.Add($"{stripeClass.Name}.{property.Name}");
                     }
-
-                    results.Add($"{stripeClass.Name}.{property.Name}");
+                    else
+                    {
+                        jsonPropertyNames.Add(attribute.PropertyName);
+                    }
                 }
             }
 
