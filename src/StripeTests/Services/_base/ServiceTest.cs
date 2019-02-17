@@ -11,6 +11,12 @@ namespace StripeTests
     public class ServiceTest : BaseStripeTest
     {
         [Fact]
+        public void Ctor_ThrowsOnInvalidApiKey()
+        {
+            Assert.Throws<StripeException>(() => new TestService("sk_test_123\n"));
+        }
+
+        [Fact]
         public void Get_ExpandProperties()
         {
             var client = new TestClient();
@@ -65,6 +71,16 @@ namespace StripeTests
             IListable<TestEntity, ListOptions>,
             IRetrievable<TestEntity>
         {
+            public TestService()
+                : base(null)
+            {
+            }
+
+            public TestService(string apiKey)
+                : base(apiKey)
+            {
+            }
+
             public override string BasePath => "/v1/test_entities";
 
             public bool ExpandSimple { get; set; }

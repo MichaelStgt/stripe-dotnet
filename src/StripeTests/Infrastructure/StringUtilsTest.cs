@@ -1,5 +1,6 @@
 namespace StripeTests
 {
+    using Stripe;
     using Stripe.Infrastructure;
     using Xunit;
 
@@ -46,6 +47,37 @@ namespace StripeTests
                 Assert.Equal(
                     testCase.want,
                     StringUtils.SecureEquals(testCase.data.a, testCase.data.b));
+            }
+        }
+
+        [Fact]
+        public void ValidateApiKey()
+        {
+            var testCases = new[]
+            {
+                new { data = "sk_test_123", throws = false },
+                new { data = "sk_test_4eC39HqLyjWDarjtT1zdp7dc", throws = false },
+                new { data = "abc", throws = false },
+                new { data = string.Empty, throws = false },
+                new { data = (string)null, throws = false },
+                new { data = "sk_test_123\n", throws = true },
+                new { data = "\nsk_test_123", throws = true },
+                new { data = "sk_test_\n123", throws = true },
+                new { data = "sk_test_123 ", throws = true },
+                new { data = " sk_test_123", throws = true },
+                new { data = "sk_test_ 123", throws = true },
+            };
+
+            foreach (var testCase in testCases)
+            {
+                if (testCase.throws)
+                {
+                    Assert.Throws<StripeException>(() => StringUtils.ValidateApiKey(testCase.data));
+                }
+                else
+                {
+                    Assert.Equal(testCase.data, StringUtils.ValidateApiKey(testCase.data));
+                }
             }
         }
     }

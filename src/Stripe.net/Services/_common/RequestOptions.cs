@@ -1,9 +1,17 @@
 namespace Stripe
 {
+    using Stripe.Infrastructure;
+
     public class RequestOptions
     {
+        private string apiKey;
+
         /// <summary>The API key to use for the request.</summary>
-        public string ApiKey { get; set; }
+        public string ApiKey
+        {
+            get => this.apiKey;
+            set => this.apiKey = StringUtils.ValidateApiKey(value);
+        }
 
         /// <summary>Idempotency key for safely retrying requests.</summary>
         public string IdempotencyKey { get; set; }

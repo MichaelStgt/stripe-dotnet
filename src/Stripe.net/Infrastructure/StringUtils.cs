@@ -6,6 +6,9 @@ namespace Stripe.Infrastructure
 
     internal static class StringUtils
     {
+        private static Regex apiKeyRegex
+            = new Regex(@"\A\w*\z", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+
         /// <summary>Converts the string to snake case.</summary>
         /// <param name="str">The string to convert.</param>
         /// <returns>A string with the contents of the input string converted to snake_case.</returns>
@@ -51,6 +54,26 @@ namespace Stripe.Infrastructure
             }
 
             return result == 0;
+        }
+
+        /// <summary>
+        /// Validates that the API key only contains valid characters (alphanumeric or underscores).
+        /// </summary>
+        /// <param name="apiKey">The API key.</param>
+        /// <returns>The API key, if valid.</returns>
+        /// <exception name="StripeException">
+        /// Thrown if the API key contains invalid characters.
+        /// </exception>
+        public static string ValidateApiKey(string apiKey)
+        {
+            if (!apiKeyRegex.IsMatch(apiKey ?? string.Empty))
+            {
+                var message = $"Invalid API key: \"{apiKey}\". API keys may only contain alphanumeric "
+                    + "characters and underscores.";
+                throw new StripeException(message);
+            }
+
+            return apiKey;
         }
     }
 }

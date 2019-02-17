@@ -18,7 +18,7 @@ namespace Stripe
 
         protected Service(string apiKey)
         {
-            this.ApiKey = apiKey;
+            this.ApiKey = StringUtils.ValidateApiKey(apiKey);
         }
 
         public string ApiKey { get; set; }
